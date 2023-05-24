@@ -8,6 +8,16 @@ IMAGE := {{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_'
 VERSION := latest
 
 #* Poetry
+#* Fix for issue with poetry
+.PHONY: setup
+setup: poetry-download
+	@echo export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring >> ~/.bashrc 
+	@echo export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring >> ~/.profile
+	source ~/.bashrc
+	source ~/.profile
+	poetry self add poetry-bumpversion@latest
+	
+
 .PHONY: poetry-download
 poetry-download:
 	curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | $(PYTHON) -
@@ -19,9 +29,7 @@ poetry-remove:
 #* Installation
 .PHONY: install
 install:
-	poetry lock -n && poetry export --without-hashes > requirements.txt
 	poetry install -n
-	-poetry run mypy --install-types --non-interactive ./
 
 .PHONY: pre-commit-install
 pre-commit-install:
@@ -47,7 +55,7 @@ test:
 check-codestyle:
 	poetry run isort --diff --check-only --settings-path pyproject.toml ./
 	poetry run black --diff --check --config pyproject.toml ./
-	poetry run darglint --verbosity 2 {{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }} tests
+	poetry run pylint {{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}
 
 .PHONY: mypy
 mypy:

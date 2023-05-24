@@ -49,7 +49,6 @@ rich = "^10.14.0"
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.1"
 black = {version = "^21.10b0", allow-prereleases = true}
-darglint = "^1.8.1"
 isort = {extras = ["colors"], version = "^5.10.1"}
 mypy = "^0.910"
 mypy-extensions = "^0.4.3"
@@ -139,6 +138,12 @@ addopts = [
   "--doctest-modules",
   "--doctest-continue-on-failure",
 ]
+# Markers to categorize tests
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "serial",
+]
+
 
 [tool.coverage.run]
 source = ["tests"]
@@ -152,3 +157,17 @@ branch = true
 [coverage.report]
 fail_under = 50
 show_missing = true
+
+
+[tool.pylint.'MESSAGES CONTROL']
+max-line-length = 127
+disable = """
+    too-many-arguments,
+    no-else-return,
+"""
+generated-members = "torch.*"
+
+[tool.pylint.master]
+fail-under=8
+
+[tool.poetry_bumpversion.file."{{ cookiecutter.project_name }}/version.py"]
